@@ -9,6 +9,8 @@ const { DOM: dom } = React;
 const DevToolsUtils = require("devtools-sham/shared/DevToolsUtils");
 const AppConstants = require("devtools-sham/sham/appconstants").AppConstants;
 const { injectGlobals } = require("./utils/debug");
+const { Task } = require("./utils/task");
+
 const { isEnabled, isFirefoxPanel, getValue,
         isDevelopment, setConfig } = require("../../config/feature");
 
@@ -95,10 +97,15 @@ function getTargetFromQuery() {
 
 const connTarget = getTargetFromQuery();
 if (connTarget) {
-  startDebugging(connTarget, actions).then((tabs) => {
-    actions.newTabs(tabs);
-    actions.selectTab({ id: connTarget.param });
-    renderRoot(App);
+  Task.spawn(function* () {
+    let { buildFakeToolbox, Inspector } = window;
+    let tabs = yield firefox.connectClient();
+    let tab = tabs.find(t => t.id.indexOf(connTarget.param) !== -1);
+    yield firefox.connectTab(tab.tab);
+    let tabTarget = yield firefox.getTabTarget();
+    let fakeToolbox = yield buildFakeToolboxInContent(tabTarget);
+    let inspector = new Inspector(fakeToolbox);
+    inspector.init();
   });
 } else if (isFirefoxPanel()) {
   const sourceMap = require("./utils/source-map");
