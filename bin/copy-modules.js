@@ -8,7 +8,7 @@ const fs = require("fs");
 const path = require("path");
 var shell = require("shelljs");
 
-const geckoPath = "../gecko/devtools/client/debugger/new/";
+const geckoPath = "/Users/jdescottes/Development/hg/fx-team/devtools/client/debugger/new/";
 
 const buildTpl = `# vim: set filetype=python:
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -36,6 +36,8 @@ const mappings = {
   immutable: "devtools/client/shared/vendor/immutable",
   "react-redux": "devtools/client/shared/vendor/react-redux",
   "prop-types": "devtools/client/shared/vendor/react-prop-types",
+  "devtools-reps": "devtools/client/shared/components/reps/reps.js",
+  "devtools-source-map": "devtools/client/shared/source-map/index.js",
 
   "wasmparser/dist/WasmParser": "devtools/client/shared/vendor/WasmParser",
   "wasmparser/dist/WasmDis": "devtools/client/shared/vendor/WasmDis",
@@ -49,10 +51,18 @@ const mappings = {
 };
 
 const vendors = [
+  "devtools-contextmenu",
+  "devtools-splitter",
+  "devtools-components",
   "devtools-config",
+  "react-transition-group/Transition",
   "fuzzaldrin-plus",
+  "reselect",
+  "classnames",
+  "url",
   "devtools-modules",
-  "devtools-utils"
+  "devtools-utils",
+  "/Svg",
 ];
 
 function transform(filePath) {
@@ -155,7 +165,7 @@ shell.rm("-rf", "./out");
 shell.mkdir("./out");
 transformSrc();
 mozBuilds();
-shell.cp("-r", "./out/src", "../gecko/devtools/client/debugger/new/");
+shell.cp("-r", "./out/src", geckoPath);
 
 // const code = transform("./src/workers/parser/index.js");
 // console.log(code.slice(0, 1000));

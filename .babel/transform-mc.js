@@ -31,23 +31,26 @@ module.exports = function({ types: t }) {
         }
 
         // Transform vendors
-        if (vendors.includes(value)) {
+        const isVendored = vendors.some(v => value.endsWith(v));
+        if (isVendored) {
           path.replaceWith(
             t.stringLiteral("devtools/client/debugger/new/vendors")
           );
 
-          let name = value;
-          if (
-            path.parentPath &&
-            path.parentPath.parent &&
-            path.parentPath.parent.id &&
-            path.parentPath.parent.id.name
-          ) {
-            name = path.parentPath.parent.id.name;
-          }
+          value = value.split("/").pop();
+
+          // Transform my-vendor-name into myVendorName
+          let parts = value.split("-");
+          parts = parts.map((part, index) => {
+            if (index === 0) {
+              return part.charAt(0).toLowerCase() + part.slice(1);;
+            }
+            return part.charAt(0).toUpperCase() + part.slice(1);
+          })
+          let exportedName = parts.join("");
 
           path.parentPath.replaceWith(
-            t.memberExpression(path.parent, t.stringLiteral(name), true)
+            t.memberExpression(path.parent, t.stringLiteral(exportedName), true)
           );
           return;
         }
